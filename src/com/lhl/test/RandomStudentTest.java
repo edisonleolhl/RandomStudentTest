@@ -13,10 +13,11 @@ public class RandomStudentTest {
 	
 	public static void main(String[] args) throws SQLException {
 		Connection conn = DBUtil.getConnection();
-		String sql = "SELECT student_id, name FROM student WHERE student_id = ? ";
+		String sql = "SELECT student_id, name, status FROM student WHERE student_id = ? ";
 		//生成3个不等随机数，取值范围[1,40]
 		List<Integer> randomNumList = createRandomNumList(40,3);
 		String name = null;
+		String status = null;
 		ResultSet rs = null;
 		PreparedStatement ptmt = conn.prepareStatement(sql);
 		for(int i = 0; i < 3; i++){
@@ -24,8 +25,9 @@ public class RandomStudentTest {
 			rs = ptmt.executeQuery();
 			while(rs.next()){
 				name = rs.getString("name");
+				status = rs.getString("status");
 			}
-			System.out.println(randomNumList.get(i) + ":" + name);
+			System.out.println(randomNumList.get(i) + ":" + name + ":" +status);
 		}
 	}
 	
