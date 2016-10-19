@@ -21,10 +21,28 @@ public class RandomStudentTest {
 		while(rs.next()){
 			excludedNumList.add(rs.getInt("student_id"));
 		}
+		if(excludedNumList.size() > 37){
+			System.out.println("剩余人数不足3人！");
+			rs.close();
+			ptmt.close();
+			return;
+		}
+		rs.close();
+		ptmt.close();
 		
 		//生成3个不等随机数，取值范围[1,40],且不包括excludedNumList中的任一数字
 		List<Integer> randomNumList = createRandomNumList(40,3,excludedNumList);
 		
+		//修改数据库中这3个学生的status为'DONE'
+		sql = "UPDATE student SET status = 'DONE' WHERE student_id in (?,?,?)";
+		ptmt = conn.prepareStatement(sql);
+		for(int i = 0; i < 3; i++){
+			ptmt.setInt(i+1, randomNumList.get(i));
+		}
+		ptmt.executeUpdate();
+		ptmt.close();
+		
+		//从数据库中查询这3个学生的name
 		String name = null;
 		String status = null;
 		sql = "SELECT student_id, name, status FROM student WHERE student_id = ? ";
@@ -36,8 +54,9 @@ public class RandomStudentTest {
 				name = rs.getString("name");
 				status = rs.getString("status");
 			}
-			System.out.println(randomNumList.get(i) + ":" + name + ":" +status); 
+			System.out.println(randomNumList.get(i) + ":" + name + ":" + "go to work!" + status + "!"); 
 		}
+		rs.close();
 		ptmt.close();
 		conn.close();
 	}
