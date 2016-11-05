@@ -5,30 +5,67 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ResourceBundle;
 
 public class DBUtil {
+	private static final String DRIVERCLASS;
+	private static final String URL;
+	private static final String USER;
+	private static final String PWD;
 
-	private static final String URL = "jdbc:mysql://127.0.0.1:3306/t1?useSSL=true";
-	private static final String USER = "root";
-	private static final String PASSWORD = "liaohaolin";
+	
+	//从dbconfig.properties文件中得到四个参数，方便切换数据库
+    static {
+        ResourceBundle bundle = ResourceBundle.getBundle("dbconfig");
+        DRIVERCLASS = bundle.getString("DRIVERCLASS");
+        URL = bundle.getString("URL");
+        USER = bundle.getString("USER");
+        PWD = bundle.getString("PWD");
+    }
+    
+    // 建立连接
+    public static Connection getConnection() throws Exception {
+        loadDriver();
+        return DriverManager.getConnection(URL, USER, PWD);
+    }
 
-	private static Connection conn = null;
-	
-	static{
-		try {
-			//1. 加载驱动程序
-			Class.forName("com.mysql.jdbc.Driver");
-			//2. 获得数据库的连接
-			conn = DriverManager.getConnection(URL, USER, PASSWORD);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static Connection getConnection(){
-		return conn;
-	}
+    // 装载驱动
+    private static void loadDriver() throws ClassNotFoundException {
+        Class.forName(DRIVERCLASS);
+    }
+
+    // 释放资源
+    public static void release(ResultSet rs, Statement stmt, Connection conn) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            rs = null;
+        }
+
+        release(stmt, conn);
+    }
+
+    public static void release(Statement stmt, Connection conn) {
+        if (stmt != null) {
+            try {
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            stmt = null;
+        }
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            conn = null;
+        }
+    }
+
 
 }

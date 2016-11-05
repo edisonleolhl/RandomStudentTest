@@ -11,7 +11,7 @@ import com.lhl.db.DBUtil;
 
 public class RandomStudentTest {
 	
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) throws Exception {
 		Connection conn = DBUtil.getConnection();
 	
 		String sql = "SELECT student_id FROM student WHERE status = 'DONE'";
