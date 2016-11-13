@@ -47,16 +47,9 @@ public class DBUtil {
 
         release(stmt, conn);
     }
-
+    
     public static void release(Statement stmt, Connection conn) {
-        if (stmt != null) {
-            try {
-                stmt.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            stmt = null;
-        }
+        release(stmt);
         if (conn != null) {
             try {
                 conn.close();
@@ -67,5 +60,26 @@ public class DBUtil {
         }
     }
 
-
+    public static void release(ResultSet rs, Statement stmt) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            rs = null;
+        }
+        release(stmt);
+    }
+    
+    public static void release(Statement stmt){
+        if (stmt != null) {
+            try {
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            stmt = null;
+        }
+    }
 }
