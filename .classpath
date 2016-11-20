@@ -6,6 +6,6 @@
 	<classpathentry kind="lib" path="sqljar/commons-dbcp-1.4.jar"/>
 	<classpathentry kind="lib" path="sqljar/commons-pool-1.5.6.jar"/>
 	<classpathentry kind="lib" path="sqljar/c3p0-0.9.1.2.jar"/>
-	<classpathentry kind="lib" path="sqljar/commons-dbutils-1.4.jar"/>
+	<classpathentry kind="lib" path="sqljar/commons-dbutils-1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

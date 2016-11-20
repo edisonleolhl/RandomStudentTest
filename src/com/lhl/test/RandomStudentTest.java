@@ -1,12 +1,14 @@
 package com.lhl.test;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.apache.commons.dbutils.handlers.ColumnListHandler;
+
+import com.lhl.bean.Student;
 import com.lhl.db.JDBCUtils;
 
 public class RandomStudentTest {
@@ -32,20 +34,31 @@ public class RandomStudentTest {
 	 */
 	private static void printStudentInfo(List<Integer> randomNumList)
 			throws SQLException {
-		Connection conn = JDBCUtils.getConnection();
-		String sql = "SELECT student_id, name, status FROM student WHERE student_id = ? ";
-		PreparedStatement ptmt = conn.prepareStatement(sql);
-		ResultSet rs = null;
+//		Connection conn = JDBCUtils.getConnection();
+//		String sql = "SELECT student_id, name, status FROM student WHERE student_id = ? ";
+//		PreparedStatement ptmt = conn.prepareStatement(sql);
+//		ResultSet rs = null;
+//		for (int i = 0; i < 3; i++) {
+//			ptmt.setInt(1, randomNumList.get(i));
+//			rs = ptmt.executeQuery();
+//			if (rs.next()) {
+//				System.out.println(randomNumList.get(i) + ":"
+//						+ rs.getString("name") + ":" + "go to work!"
+//						+ rs.getString("status") + "!");
+//			}
+//		}
+//		JDBCUtils.release(rs, ptmt, conn);
+		QueryRunner queryRunner = new QueryRunner(JDBCUtils.getDataSource());
+		String sql = "SELECT student_id, name, status FROM student WHERE student_id in  (?, ?, ?)";
+		Object[] params = { randomNumList.get(0), randomNumList.get(1),
+				randomNumList.get(2) };
+		List<Student> students = queryRunner.query(sql,
+				new BeanListHandler<Student>(Student.class), params);
 		for (int i = 0; i < 3; i++) {
-			ptmt.setInt(1, randomNumList.get(i));
-			rs = ptmt.executeQuery();
-			if (rs.next()) {
-				System.out.println(randomNumList.get(i) + ":"
-						+ rs.getString("name") + ":" + "go to work!"
-						+ rs.getString("status") + "!");
-			}
+			System.out.println(students.get(i).getStudent_id() + ":"
+					+ students.get(i).getName() + ":" + "go to work!"
+					+ students.get(i).getStatus() + "!");
 		}
-		JDBCUtils.release(rs, ptmt, conn);
 	}
 
 	/**
@@ -55,14 +68,18 @@ public class RandomStudentTest {
 	 */
 	private static void updateStudentStatus(List<Integer> randomNumList)
 			throws SQLException {
-		Connection conn = JDBCUtils.getConnection();
+//		Connection conn = JDBCUtils.getConnection();
+//		String sql = "UPDATE student SET status = 'DONE' WHERE student_id in (?,?,?)";
+//		PreparedStatement ptmt = conn.prepareStatement(sql);
+//		for (int i = 0; i < 3; i++) {
+//			ptmt.setInt(i + 1, randomNumList.get(i));
+//		}
+//		ptmt.executeUpdate();
+//		JDBCUtils.release(ptmt, conn);
+		QueryRunner queryRunner = new QueryRunner(JDBCUtils.getDataSource());
 		String sql = "UPDATE student SET status = 'DONE' WHERE student_id in (?,?,?)";
-		PreparedStatement ptmt = conn.prepareStatement(sql);
-		for (int i = 0; i < 3; i++) {
-			ptmt.setInt(i + 1, randomNumList.get(i));
-		}
-		ptmt.executeUpdate();
-		JDBCUtils.release(ptmt, conn);
+		Object[] params = {randomNumList.get(0), randomNumList.get(1), randomNumList.get(2)};
+		queryRunner.update(sql, params);
 	}
 
 	/**
@@ -70,21 +87,27 @@ public class RandomStudentTest {
 	 * @throws SQLException
 	 */
 	private static List<Integer> generateExcludedNumList() throws SQLException {
-		Connection conn = JDBCUtils.getConnection();
+//		Connection conn = JDBCUtils.getConnection();
+//		String sql = "SELECT student_id FROM student WHERE status = 'DONE'";
+//		PreparedStatement ptmt = conn.prepareStatement(sql);
+//		ResultSet rs = ptmt.executeQuery();
+//		List<Integer> excludedNumList = new ArrayList<Integer>();
+//		if (excludedNumList.size() > 37) {
+//			System.out.println("剩余人数不足3人！");
+//			JDBCUtils.release(rs, ptmt, conn);
+//			return null;
+//		}
+//		while (rs.next()) {
+//			excludedNumList.add(rs.getInt("student_id"));
+//		}
+//		JDBCUtils.release(rs, ptmt, conn);
+		QueryRunner queryRunner = new QueryRunner(JDBCUtils.getDataSource());
 		String sql = "SELECT student_id FROM student WHERE status = 'DONE'";
-		PreparedStatement ptmt = conn.prepareStatement(sql);
-		ResultSet rs = ptmt.executeQuery();
-		List<Integer> excludedNumList = new ArrayList<Integer>();
-		if (excludedNumList.size() > 37) {
-			System.out.println("剩余人数不足3人！");
-			JDBCUtils.release(rs, ptmt, conn);
-			return null;
-		}
-		while (rs.next()) {
-			excludedNumList.add(rs.getInt("student_id"));
-		}
-		JDBCUtils.release(rs, ptmt, conn);
-		return excludedNumList;
+		// Attention:Add Generic to ScalarHandler, ColumnHandler, and KeyedHandler since DBUtils-1.5
+		List<Integer> student_idList = queryRunner.query(sql,
+				new ColumnListHandler<Integer>("student_id")); 
+		
+		return student_idList;
 	}
 
 	/**
