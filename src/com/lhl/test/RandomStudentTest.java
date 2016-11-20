@@ -13,21 +13,14 @@ import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 
 
-import com.lhl.db.DBUtil;
+import com.lhl.db.JDBCUtils;
 
 public class RandomStudentTest {
 	
 	public static void main(String[] args) throws Exception {
-		InputStream in = DBUtil.class.getClassLoader().
-				getResourceAsStream("dbcpconfig.properties");
-		Properties properties = new Properties();
-		properties.load(in);
-
-		DataSource basicDataSource = BasicDataSourceFactory
-	            .createDataSource(properties);
-
+	
 	    // 从连接池中获取连接
-	    Connection conn = basicDataSource.getConnection();
+	    Connection conn = JDBCUtils.getConnection();
 	
 		String sql = "SELECT student_id FROM student WHERE status = 'DONE'";
 		PreparedStatement ptmt = conn.prepareStatement(sql);
@@ -42,7 +35,7 @@ public class RandomStudentTest {
 			ptmt.close();
 			return;
 		}
-		DBUtil.release(rs, ptmt);
+		JDBCUtils.release(rs, ptmt);
 		
 		//生成3个不等随机数，取值范围[1,40],且不包括excludedNumList中的任一数字
 		List<Integer> randomNumList = createRandomNumList(40,3,excludedNumList);
@@ -54,7 +47,7 @@ public class RandomStudentTest {
 			ptmt.setInt(i+1, randomNumList.get(i));
 		}
 		ptmt.executeUpdate();
-		DBUtil.release(ptmt);
+		JDBCUtils.release(ptmt);
 		
 		//从数据库中查询这3个学生的name
 		String name = null;
@@ -70,7 +63,7 @@ public class RandomStudentTest {
 			}
 			System.out.println(randomNumList.get(i) + ":" + name + ":" + "go to work!" + status + "!"); 
 		}
-		DBUtil.release(rs, ptmt, conn);
+		JDBCUtils.release(rs, ptmt, conn);
 	}
 	
 	/*

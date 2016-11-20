@@ -7,32 +7,23 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ResourceBundle;
 
-public class DBUtil {
-	private static final String DRIVERCLASS;
-	private static final String URL;
-	private static final String USER;
-	private static final String PWD;
+import javax.sql.DataSource;
 
-	
-	//从dbconfig.properties文件中得到四个参数，方便切换数据库
-    static {
-        ResourceBundle bundle = ResourceBundle.getBundle("dbconfig");
-        DRIVERCLASS = bundle.getString("DRIVERCLASS");
-        URL = bundle.getString("URL");
-        USER = bundle.getString("USER");
-        PWD = bundle.getString("PWD");
-    }
-    
-    // 建立连接
-    public static Connection getConnection() throws Exception {
-        loadDriver();
-        return DriverManager.getConnection(URL, USER, PWD);
-    }
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-    // 装载驱动
-    private static void loadDriver() throws ClassNotFoundException {
-        Class.forName(DRIVERCLASS);
-    }
+public class JDBCUtils {
+	// 获得数据库连接 --- 通过c3p0连接池
+	// 自动读取c3p0-config.xml
+	private static DataSource dataSource = new ComboPooledDataSource();
+
+	// 返回数据库连接池
+	public static DataSource getDataSource() {
+		return dataSource;
+	}
+
+	public static Connection getConnection() throws SQLException {
+		return dataSource.getConnection();
+	}
 
     // 释放资源
     public static void release(ResultSet rs, Statement stmt, Connection conn) {
